@@ -9,6 +9,7 @@
     "build": "tsc -p ."
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
     "prisma": "^5.12.1",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.4.5"
@@ -16,8 +17,12 @@
   "dependencies": {
     "@apollo/server": "^4.10.4",
     "@prisma/client": "^5.12.1",
+    "@types/dotenv": "^8.2.0",
+    "axios": "^1.6.8",
     "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "graphql": "^16.8.1"
+    "graphql": "^16.8.1",
+    "jsonwebtoken": "^9.0.2"
   }
 }
