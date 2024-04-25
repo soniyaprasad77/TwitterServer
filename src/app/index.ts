@@ -3,10 +3,11 @@ import {expressMiddleware} from "@apollo/server/express4";
 import bodyParser from "body-parser";
 import express from "express";
 import {User} from "./user";
-
+import cors from "cors";
 
 export async  function initServer(){
     const app = express();
+    app.use(cors());
     app.use(bodyParser.json());
     const graphqlServer = new ApolloServer({
         typeDefs:`
