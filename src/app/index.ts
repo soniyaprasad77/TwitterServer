@@ -23,6 +23,7 @@ export async  function initServer(){
             }
             type Mutation {
                 ${Tweet.mutations}
+                ${User.mutations}
             }
             
         `,
@@ -32,7 +33,8 @@ export async  function initServer(){
                 ...Tweet.resolvers.queries
             },
             Mutation:{
-                ...Tweet.resolvers.mutations
+                ...Tweet.resolvers.mutations,
+                ...User.resolvers.mutations
             },
             ...Tweet.resolvers.extraResolvers,
             ...User.resolvers.extraResolvers

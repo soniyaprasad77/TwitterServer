@@ -4,7 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,34 +14,33 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid())
-  firstName String
-  lastName String?
-  email String @unique
+  id              String    @id @default(cuid())
+  firstName       String
+  lastName        String?
+  email           String    @unique
   profileImageURL String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tweets Tweet[]
-  followers Follows[] @relation("follower")
-  following Follows[] @relation("following")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tweets          Tweet[]
+  followers       Follows[] @relation("follower")
+  following       Follows[] @relation("following")
 }
 
 model Follows {
-  follower User @relation("follower", fields: [followerId], references:[id])
-  followerId String
-  following User @relation("following", fields: [followingId], references:[id])
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User   @relation("following", fields: [followingId], references: [id])
   followingId String
 
   @@id([followerId, followingId])
+}
 
-} 
-
-model Tweet{
-  id String @id @default(cuid())  
-  content String
-  imageURL String?
-  author User @relation(fields: [authorId], references: [id])
-  authorId String
-   createdAt DateTime @default(now())
+model Tweet {
+  id        String   @id @default(cuid())
+  content   String
+  imageURL  String?
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
