@@ -4,27 +4,26 @@ import { GraphqlContext } from "../../interfaces";
 import { Tweet } from "@prisma/client";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import UserService from "../../services/user";
+import TweetService, { createTweetPayload } from "../../services/tweet";
 
-interface createTweetPayload {
-    content: 'string';
-    imageURL?: 'string'
-}
+
 //console.log("env" + process.env.AWS_ACCESS_KEY)
 const s3Client = new S3Client({
-    region:'ap-south-1',
+    region: process.env.AWS_REGION,
     credentials: {
-      accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
-      secretAccessKey: `${process.env.AWS_SECRET_KEY}`,
+        accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
+        secretAccessKey: `${process.env.AWS_SECRET_KEY}`,
     },
-  });
+});
 
 const queries = {
     getAllTweets: async () => {
-        return prismaClient.tweet.findMany({ orderBy: { createdAt: 'desc' } });
+        return TweetService.getAllTWeets();
     },
     getSignedURLForTweet: async (
         parent: any,
-        { imageType, imageName }: { imageType: string ; imageName:string},
+        { imageType, imageName }: { imageType: string; imageName: string },
         ctx: GraphqlContext
     ) => {
         if (!ctx.user || !ctx.user.id) {
@@ -35,8 +34,8 @@ const queries = {
             throw new Error('Invalid Image Type');
         }
         const putObjectCommand = new PutObjectCommand({
-            Bucket:'soniya-twitter-dev',
-            Key:`uploads/${ctx.user.id}/tweets/${imageName}-${Date.now()}.${imageType}`, 
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: `uploads/${ctx.user.id}/tweets/${imageName}-${Date.now()}.${imageType}`,
         });
 
         const signedURL = await getSignedUrl(s3Client, putObjectCommand);
@@ -45,20 +44,13 @@ const queries = {
 }
 const mutations = {
     createTweet: async (
-        parent: any,
+        parent:any,
         { payload }: { payload: createTweetPayload },
         ctx: GraphqlContext) => {
         if (!ctx.user) {
-            throw new Error('Unauthorized');
+            throw new Error('You are not authenticated');
         }
-        const tweet = await prismaClient.tweet.create({
-            data: {
-                content: payload.content,
-                imageURL: payload.imageURL,
-                author: { connect: { id: ctx.user.id } }
-
-            }
-        })
+        const tweet = await TweetService.createTweet({...payload, userId:ctx.user.id});
         return tweet;
     }
 }
@@ -66,7 +58,7 @@ const mutations = {
 export const extraResolvers = {
     Tweet: {
         author: (parent: Tweet) => {
-            return prismaClient.user.findUnique({ where: { id: parent.authorId } })
+            return UserService.getUserById(parent.authorId);
         }
     }
 }
