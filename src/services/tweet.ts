@@ -9,7 +9,10 @@ export interface createTweetPayload {
 
 export class TweetService {
     public static createTweet = async (data: createTweetPayload) => {
-        await redisClient.get('ALL_TWEETS');    
+        const rateLimit = await redisClient.get(`RATE_LIMIT:TWEET:${data.userId}`);
+        if(rateLimit){
+            throw new Error('Rate limit exceeded');
+        }
         const tweet = prismaClient.tweet.create({
             data: {
                 content: data.content,
@@ -17,6 +20,7 @@ export class TweetService {
                 author: { connect: { id: data.userId } }
             },
         })
+        await redisClient.setex(`RATE_LIMIT:TWEET:${data.userId}`, 10, 1)
         await redisClient.del('ALL_TWEETS');
         return tweet;
     }

@@ -77,8 +77,9 @@ const extraResolvers = {
             console.log(
                 "cache not found"
             )
-            await redisClient.set(
+            await redisClient.setex(
                 `RECOMMENDED_USERS:${ctx.user.id}`,
+                10,
                 JSON.stringify(users),
             );
             return users;
