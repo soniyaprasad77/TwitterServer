@@ -10,7 +10,7 @@ export interface createTweetPayload {
 export class TweetService {
     public static createTweet = async (data: createTweetPayload) => {
         const rateLimit = await redisClient.get(`RATE_LIMIT:TWEET:${data.userId}`);
-        if(rateLimit){
+        if (rateLimit) {
             throw new Error('Rate limit exceeded');
         }
         const tweet = prismaClient.tweet.create({
@@ -24,13 +24,13 @@ export class TweetService {
         await redisClient.del('ALL_TWEETS');
         return tweet;
     }
-    public static getAllTWeets = async () =>{
+    public static getAllTWeets = async () => {
         const cachedTweets = await redisClient.get('ALL_TWEETS');
-        if(cachedTweets){
+        if (cachedTweets) {
             return JSON.parse(cachedTweets);
         }
-        const tweets = await prismaClient.tweet.findMany({orderBy:{createdAt:'desc'}})
-        await redisClient.set('ALL_TWEETS',JSON.stringify(tweets));
+        const tweets = await prismaClient.tweet.findMany({ orderBy: { createdAt: 'desc' } })
+        await redisClient.set('ALL_TWEETS', JSON.stringify(tweets));
         return tweets;
     }
 }
